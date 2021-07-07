@@ -1,0 +1,72 @@
+---
+- name: play for hadoop configuration
+  hosts: all
+  vars:
+     - hadoop_pkg_url: "http://52.66.234.243/pub/hadoop-1.2.1-1.x86_64.rpm"
+     - java_pkg_url: "http://52.66.234.243/pub/jdk-8u171-linux-x64.rpm"
+
+  tasks:
+    - block:
+      # - name: Install java rpm
+      #   yum:
+      #     name: "{{ java_pkg_url }}"
+      #     state: present
+      #     disable_gpg_check: yes
+
+      # - name: Download hadoop rpm
+      #   get_url:
+      #     url: "{{ hadoop_pkg_url }}"
+      #     dest: "/tmp/hadoop-1.2.1.rpm"
+
+      # - name: Install hadoop rpm
+      #   command: rpm -ivh /tmp/hadoop-1.2.1.rpm --force
+      #   when: ansible_distribution ==  "RedHat"
+        # register: output
+     
+      - name: create directory for name node
+        file:
+          state: directory
+          path: /nn
+        when: inventory_hostname in groups['master']
+      
+      - name: copy hdfs-site.xml to nn
+        copy:
+          src: hdfs-site-nn.xml
+          dest: /etc/hadoop/hdfs-site.xml
+        when: inventory_hostname in groups['master']
+        
+      - name: copy core-site.xml to nn
+        copy:
+          src: core-site-nn.xml
+          dest: /etc/hadoop/core-site.xml
+        when: inventory_hostname in groups['master']
+ 
+      - name: copy hdfs-site.xml to dn
+        copy:
+          src: hdfs-site-dn.xml
+          dest: /etc/hadoop/hdfs-site.xml
+        when: inventory_hostname in groups['slave']
+        
+      - name: copy core-site.xml to dn
+        template:
+          src: core-site-dn.xml
+          dest: /etc/hadoop/core-site.xml
+        when: inventory_hostname in groups['slave']
+        
+      - name: format namenode
+        command: hadoop namenode format
+        when: inventory_hostname in groups['master']
+
+      - name: start namenode
+        command: hadoop-daemon.sh start namenode
+        when: inventory_hostname in groups['master']
+
+      - name: start datanode
+        command: hadoop-daemon.sh start datanode
+        when: inventory_hostname in groups['slave']
+
+      rescue:
+        - name: debug the output
+          debug:
+            msg: "Failed with: {{ output }}"
+      

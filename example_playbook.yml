@@ -1,0 +1,5 @@
+- hosts: all
+  tasks:
+    - template:
+        src: example.j2
+        dest: /tmp/example.txt
