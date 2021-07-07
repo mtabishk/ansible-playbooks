@@ -1,5 +1,5 @@
 ---
-- name: Configure docker on rhel8
+- name: Configure docker on rhel8 and run httpd container exposed on port
   hosts: all
   vars:
     expose_port: 8080
