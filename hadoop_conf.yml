@@ -7,22 +7,27 @@
 
   tasks:
     - block:
-      # - name: Install java rpm
-      #   yum:
-      #     name: "{{ java_pkg_url }}"
-      #     state: present
-      #     disable_gpg_check: yes
+      - name: Install java rpm
+        yum:
+          name: "{{ java_pkg_url }}"
+          state: present
+          disable_gpg_check: yes
 
-      # - name: Download hadoop rpm
-      #   get_url:
-      #     url: "{{ hadoop_pkg_url }}"
-      #     dest: "/tmp/hadoop-1.2.1.rpm"
+      - name: Download hadoop rpm
+        get_url:
+          url: "{{ hadoop_pkg_url }}"
+          dest: "/tmp/hadoop-1.2.1.rpm"
 
-      # - name: Install hadoop rpm
-      #   command: rpm -ivh /tmp/hadoop-1.2.1.rpm --force
-      #   when: ansible_distribution ==  "RedHat"
-        # register: output
+      - name: Install hadoop rpm
+        command: rpm -ivh /tmp/hadoop-1.2.1.rpm --force
+        when: ansible_distribution ==  "RedHat"
      
+      - name: Stop and disable firewalld.
+        service:
+          name: firewalld
+          state: stopped
+          enabled: no
+      
       - name: create directory for name node
         file:
           state: directory
@@ -54,19 +59,22 @@
         when: inventory_hostname in groups['slave']
         
       - name: format namenode
-        command: hadoop namenode format
+        command: hadoop namenode -format -force
         when: inventory_hostname in groups['master']
+        ignore_errors: yes
 
       - name: start namenode
         command: hadoop-daemon.sh start namenode
         when: inventory_hostname in groups['master']
+        ignore_errors: yes
 
       - name: start datanode
         command: hadoop-daemon.sh start datanode
         when: inventory_hostname in groups['slave']
+        ignore_errors: yes
 
       rescue:
         - name: debug the output
           debug:
-            msg: "Failed with: {{ output }}"
+            msg: "Playbook failed"
       

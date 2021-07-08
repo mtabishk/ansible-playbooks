@@ -5,9 +5,9 @@
 
 <configuration>
 <property>
-<name>fs.default.data</name>
+<name>fs.default.name</name>
 {% for x in groups['master'] %}
-<value>hdfs://{{ hostvars[x]['ansible_facts']['default_ipv4']['address'] }}:9100</value>
+<value>hdfs://{{ hostvars[x]['ansible_facts']['default_ipv4']['address'] }}:9001</value>
 {% endfor %}
 </property>
 </configuration>
