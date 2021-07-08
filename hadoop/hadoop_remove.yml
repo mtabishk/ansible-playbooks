@@ -1,7 +1,6 @@
 - hosts: all
   tasks:
     - command: yum remove -y hadoop
-
     - file:
         state: absent
         path: /nn
@@ -12,16 +11,6 @@
         path: /dn
       when: inventory_hostname in groups['slave']
 
-    - command: rpm -ivh /root/hadoop.rpm --force
 
-    - file:
-        state: directory
-        path: /nn
-      when: inventory_hostname in groups['master']
-    
-    - file:
-        state: directory
-        path: /dn
-      when: inventory_hostname in groups['slave']
 
 

@@ -1,25 +1,42 @@
 ---
-- name: play for hadoop configuration
-  hosts: all
+- name: play for downloading hadoop and java packages
+  hosts: localhost
+  become: false
   vars:
      - hadoop_pkg_url: "http://52.66.234.243/pub/hadoop-1.2.1-1.x86_64.rpm"
      - java_pkg_url: "http://52.66.234.243/pub/jdk-8u171-linux-x64.rpm"
 
   tasks:
+    - name: download java rpm
+      get_url:
+        url: "{{ java_pkg_url }}"
+        dest: "/tmp/java-jdk.rpm"
+
+    - name: download hadoop rpm
+      get_url:
+        url: "{{ hadoop_pkg_url }}"
+        dest: "/tmp/hadoop-1.2.1.rpm"
+  
+- name: hadoop configuration  
+  hosts: all
+  tasks:
     - block:
-      - name: Install java rpm
+      - name: Copy java and hadoop rpm
+        copy: 
+          src: "{{ item }}"
+          dest: "{{ item }}"
+        loop: 
+          - "/tmp/java-jdk.rpm"
+          - "/tmp/hadoop-1.2.1.rpm"
+      
+      - name: install java rpm
         yum:
-          name: "{{ java_pkg_url }}"
+          name: "/tmp/java-jdk.rpm"
           state: present
           disable_gpg_check: yes
 
-      - name: Download hadoop rpm
-        get_url:
-          url: "{{ hadoop_pkg_url }}"
-          dest: "/tmp/hadoop-1.2.1.rpm"
-
       - name: Install hadoop rpm
-        command: rpm -ivh /tmp/hadoop-1.2.1.rpm --force
+        command: "rpm -ivh /tmp/hadoop-1.2.1.rpm --force"
         when: ansible_distribution ==  "RedHat"
      
       - name: Stop and disable firewalld.
