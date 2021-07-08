@@ -1,0 +1,6 @@
+[master]
+servera.lab.example.com
+
+[slave]
+serverb.lab.example.com
+serverc.lab.example.com
