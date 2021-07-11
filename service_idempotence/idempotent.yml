@@ -1,0 +1,22 @@
+- name: idempotent service
+  hosts: webserver
+  tasks:
+    - name: install httpd
+      yum:
+        name: httpd
+        state: present
+
+    - name: copy template
+      template: 
+        src: index.html.j2
+        dest: /var/www/html/index.html
+      notify: restart service
+
+    
+    
+  handlers:
+    - name: restart service 
+      service:
+        name: httpd
+        state: restarted
+
