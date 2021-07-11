@@ -1,0 +1,10 @@
+---
+- name: playbook to run webserver role
+  hosts: webservers
+  roles:
+    - role: webserver
+
+- name: playbook to run loadbalancer role
+  hosts: loadbalancer
+  roles:
+    - role: loadbalancer

@@ -1,7 +1,7 @@
-[web]
+[loadbalancer]
+serverd.lab.example.com
+
+[webservers]
 servera.lab.example.com
 serverb.lab.example.com
 serverc.lab.example.com
-
-[loadbalancer]
-serverd.lab.example.com

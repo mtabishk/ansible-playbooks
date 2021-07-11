@@ -1,0 +1,25 @@
+---
+# tasks file for loadbalancer
+- name: install haproxy
+  package:
+    name: haproxy
+    state: present
+
+- name: copy ansible.cfg.j2 template
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify: lb restart
+ 
+- name: start haproxy service
+  service:
+    name: haproxy
+    state: started
+    enabled: yes
+
+- name: allow port-8080 
+  firewalld:
+    port: 8080/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled

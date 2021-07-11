@@ -1,0 +1,4 @@
+---
+# vars file for loadbalancer
+load_balancer_port: 8080
+webserver_port: 80
