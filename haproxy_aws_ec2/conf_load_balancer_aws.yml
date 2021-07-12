@@ -1,0 +1,58 @@
+- name: conf webservers
+  hosts: tag_name_webservers
+  vars:
+    pkgs:
+      - httpd
+      - php
+
+    webserver: httpd
+
+  tasks:
+    - name: install pkgs
+      package:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ pkgs }}"
+
+    - name: start service
+      service: 
+        name: "{{ webserver }}"
+        state: started
+        enabled: yes
+
+    - name: copy index.php
+      template:
+        src: index.php.j2
+        dest: /var/www/html/index.php
+
+- name: conf load balancer
+  hosts: tag_name_loadbalancer
+  vars:
+    lb: haproxy
+    webserver_port: 80
+    load_balancer_port: 8080
+  
+  tasks:
+    - name: install lb
+      package: 
+        name: "{{ lb }}"
+        state: present
+
+    - name: start service
+      service:
+        name: "{{ lb }}"
+        state: started
+        enabled: yes
+
+    - name: copy conf file
+      template:
+        src: haproxy.cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+      notify: restart lb
+
+  handlers:
+    - name: restart lb
+      service:
+        name: "{{ lb }}"
+        state: restarted
+
