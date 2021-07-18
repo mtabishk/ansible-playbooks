@@ -1,0 +1,59 @@
+---
+- name: Configure docker on managed node then launch a contaienr and use that container as managed node.
+  hosts: dockernode 
+  vars:
+    expose_port: 8080
+    ssh_port: 2222
+
+  tasks:
+    - block:
+        - name: yum repo for docker
+          yum_repository:
+            name: docker
+            description: "Repo for Docker"
+            file: docker_repo
+            baseurl: https://download.docker.com/linux/centos/7/x86_64/stable/
+            enabled: yes
+            state: present
+            gpgcheck: no
+
+        - name: install docker package
+          command: yum install -y docker-ce --nobest
+          when: ansible_distribution ==  "RedHat"
+          register: output
+
+        - name: start and enable docker service
+          service:
+            name: docker
+            state: started
+            enabled: yes
+
+        - name: firewall conf for docker
+          firewalld:
+            masquerade: yes
+            state: enabled
+            permanent: yes
+            zone: public
+
+        - name: enable firewall for docker port
+          firewalld:
+            port: "{{ item }}"
+            zone: public
+            permanent: yes
+            state: enabled
+            immediate: yes
+          loop:
+             - "80/tcp"
+             - "443/tcp"
+             - "{{ expose_port }}/tcp"
+        
+        - name: reload firewall
+          service:
+            name: firewalld
+            state: reloaded
+
+        - name: restart docker service
+          service:
+            name: docker
+            state: restarted
+

@@ -1,0 +1,2 @@
+[containernode]
+192.168.1.3 ansible_ssh_user=devops ansible_ssh_pass=password ansible_ssh_port=2222
