@@ -1,0 +1,8 @@
+[amazon2]
+13.126.245.62 ansible_ssh_user=ec2-user
+
+[ubuntu]
+13.233.100.44 ansible_ssh_user=ubuntu
+
+[redhat]
+65.2.132.206 ansible_ssh_user=ec2-user

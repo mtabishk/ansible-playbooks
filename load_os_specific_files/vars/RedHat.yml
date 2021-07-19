@@ -1,0 +1,3 @@
+webserver_package: httpd
+webserver_daemon: httpd
+doc_root: /var/www/html

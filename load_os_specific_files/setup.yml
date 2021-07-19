@@ -1,0 +1,24 @@
+---
+- hosts: all
+  vars_files:
+       - "./vars/{{ ansible_facts['distribution'] }}.yml"
+  tasks:
+     - name: "Install Apache package"
+       package:
+           name: "{{ item }}"
+           state: present
+       loop:
+        - "{{ webserver_package }}"
+        - php
+        - net-tools
+
+     - name: "Copying Test Page"
+       template:
+           dest: "{{ doc_root }}/index.php"
+           src: index.php.j2
+
+     - name: "Starting Daemon"
+       service:
+             name: "{{ webserver_daemon }}"
+             state: started
+             enabled: yes
