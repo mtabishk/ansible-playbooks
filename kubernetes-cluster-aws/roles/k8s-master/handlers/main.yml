@@ -1,0 +1,6 @@
+---
+# handlers file for k8s-master
+- name: restart docker service
+  service:
+    name: docker
+    state: restarted

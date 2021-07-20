@@ -1,0 +1,3 @@
+---
+# vars file for k8s-master
+output_dir: /home/devops/ansible-playbooks/kubernetes-cluster-aws 

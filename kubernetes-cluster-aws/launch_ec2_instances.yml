@@ -1,0 +1,71 @@
+- name: launch an ec2 instance for kubernetes master node
+  hosts: localhost
+  become: false
+  vars:
+    keypair: aws-arth-key 
+    instance_type: t2.medium
+    image: ami-00bf4ae5a7909786c
+    vpc_subnet_id: subnet-0f20d73e825bd2692
+    security_group_id: sg-0344355829b3965a2
+    region: ap-south-1
+    master_node_output_dir: /home/devops/ansible-playbooks/kubernetes-cluster-aws
+
+  tasks:
+    - name: launch ec2 instance
+      amazon.aws.ec2:
+        keypair: "{{ keypair }}"
+        group_id: "{{ security_group_id }}"
+        instance_type: "{{ instance_type }}"
+        vpc_subnet_id: "{{ vpc_subnet_id }}"
+        image: "{{ image }}"
+        assign_public_ip: yes
+        wait: yes
+        wait_timeout: 500
+        count: 1
+        instance_tags:
+          name: master
+          env: test
+        region: "{{ region }}"
+      register: master_node_output
+
+    - name: output of master ec2 instance
+      local_action:
+        module: copy
+        content: "{{ master_node_output }}"
+        dest: "{{ master_node_output_dir }}/master_output" 
+  
+- name: launch an ec2 instance for kubernetes worker node
+  hosts: localhost
+  become: false
+  vars:
+    keypair: aws-arth-key 
+    instance_type: t2.micro
+    image: ami-00bf4ae5a7909786c
+    vpc_subnet_id: subnet-0f20d73e825bd2692
+    security_group_id: sg-0344355829b3965a2
+    region: ap-south-1
+    worker_node_output_dir: /home/devops/ansible-playbooks/kubernetes-cluster-aws
+
+  tasks:
+    - name: launch ec2 instance
+      amazon.aws.ec2:
+        keypair: "{{ keypair }}"
+        group_id: "{{ security_group_id }}"
+        instance_type: "{{ instance_type }}"
+        vpc_subnet_id: "{{ vpc_subnet_id }}"
+        image: "{{ image }}"
+        assign_public_ip: yes
+        wait: yes
+        wait_timeout: 500
+        count: 3
+        instance_tags:
+          name: worker
+          env: test
+        region: "{{ region }}"
+      register: worker_node_output
+
+    - name: output of slave ec2 instance
+      local_action:
+        module: copy
+        content: "{{ worker_node_output }}"
+        dest: "{{ worker_node_output_dir }}/worker_output" 
