@@ -1,0 +1,5 @@
+- name: use the k8s master roles
+  hosts: tag_name_worker
+  roles:
+    - k8s-worker
+

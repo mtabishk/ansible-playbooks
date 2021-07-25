@@ -91,4 +91,4 @@
   local_action:
     module: copy
     content: 'join_cmd: "{{ kubeadm_join_command.stdout_lines[0] }}"'
-    dest: "{{ output_dir }}/roles/k8s-worker/vars/main.yml" 
+    dest: "{{ output_dir }}/roles/mtabishk.ansible_kubernetes_worker_role/vars/main.yml" 

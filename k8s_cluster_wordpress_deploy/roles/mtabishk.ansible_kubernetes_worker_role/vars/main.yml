@@ -1,0 +1,1 @@
+join_cmd: "kubeadm join 172.31.44.154:6443 --token 0voah6.5u6tfhwi45bqrxeq --discovery-token-ca-cert-hash sha256:e4fab3e7ba3dd60b40712b0274497e83d4c9004a8c7eceaab1fa73afbcdf74ff "

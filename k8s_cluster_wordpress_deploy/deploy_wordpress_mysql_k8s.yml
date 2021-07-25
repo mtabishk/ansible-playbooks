@@ -1,0 +1,12 @@
+- name: Deploy Wordpress and MySQL on K8s cluster
+  hosts: tag_name_master
+  tasks:
+    - name: copy files
+      copy:
+        src: wordpress-mysql-deployment
+        dest: /root
+
+    - name: create app
+      command: kubectl apply -k ~/wordpress-mysql-deployment/
+    
+ 

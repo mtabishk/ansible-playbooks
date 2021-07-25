@@ -1,4 +1,0 @@
-- name: use the k8s cluster roles
-  hosts: master
-  roles:
-    - k8s-master

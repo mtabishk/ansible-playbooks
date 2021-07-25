@@ -67,28 +67,11 @@
     name: iproute-tc
     state: present
 
-- name: pull config images
-  command: sudo kubeadm config images pull
-
-- name: kubeadm init
-  command: sudo kubeadm init --pod-network-cidr=10.240.0.0/16
+- name: join master 
+  command: "{{ join_cmd }}"
+  register: kubeadm_join_out
   ignore_errors: yes
 
-- name: kubeconfig 
-  shell: |
-    mkdir -p $HOME/.kube
-    sudo cp /etc/kubernetes/admin.conf $HOME/.kube/config
-    sudo chown $(id -u):$(id -g) $HOME/.kube/config
-
-- name: setup flannel
-  command: kubectl apply  -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-
-- name: kubeadm join command
-  command: kubeadm token create --print-join-command
-  register: kubeadm_join_command
-
-- name: output of kubeadm join command
-  local_action:
-    module: copy
-    content: 'join_cmd: "{{ kubeadm_join_command.stdout_lines[0] }}"'
-    dest: "{{ output_dir }}/roles/k8s-worker/vars/main.yml" 
+- name: output of kubeadm join
+  debug:
+    var: kubeadm_join_out

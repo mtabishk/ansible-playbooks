@@ -1,0 +1,4 @@
+- name: use the k8s cluster master role
+  hosts: tag_name_master
+  roles:
+    - mtabishk.ansible_kubernetes_master_role 
