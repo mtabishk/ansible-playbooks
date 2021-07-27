@@ -7,25 +7,13 @@ metadata:
 spec:
   ports:
     - port: 80
+      nodePort: 30333
   selector:
     app: wordpress
     tier: frontend
   type: LoadBalancer
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: wp-pv-claim
-  labels:
-    app: wordpress
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 20Gi
----
-apiVersion: apps/v1
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
   name: wordpress
@@ -44,6 +32,10 @@ spec:
         app: wordpress
         tier: frontend
     spec:
+      volumes:
+      - name: wordpress-persistent-storage
+        persistentVolumeClaim:
+          claimName: wordpress-pv-claim
       containers:
       - image: wordpress:4.8-apache
         name: wordpress
@@ -53,15 +45,14 @@ spec:
         - name: WORDPRESS_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql-pass
+              name: mysqlsecret
               key: password
         ports:
         - containerPort: 80
           name: wordpress
+        volumes:
         volumeMounts:
         - name: wordpress-persistent-storage
           mountPath: /var/www/html
-      volumes:
-      - name: wordpress-persistent-storage
-        persistentVolumeClaim:
-          claimName: wp-pv-claim
+
+

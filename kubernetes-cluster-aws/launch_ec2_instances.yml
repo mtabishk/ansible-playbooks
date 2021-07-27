@@ -8,7 +8,7 @@
     vpc_subnet_id: subnet-0f20d73e825bd2692
     security_group_id: sg-0344355829b3965a2
     region: ap-south-1
-    master_node_output_dir: /home/devops/ansible-playbooks/kubernetes-cluster-aws
+    output_dir: /home/devops/ansible-playbooks/kubernetes-cluster-aws
 
   tasks:
     - name: launch ec2 instance
@@ -32,7 +32,7 @@
       local_action:
         module: copy
         content: "{{ master_node_output }}"
-        dest: "{{ master_node_output_dir }}/master_output" 
+        dest: "{{ output_dir }}/master_output" 
   
 - name: launch an ec2 instance for kubernetes worker node
   hosts: localhost
@@ -44,7 +44,7 @@
     vpc_subnet_id: subnet-0f20d73e825bd2692
     security_group_id: sg-0344355829b3965a2
     region: ap-south-1
-    worker_node_output_dir: /home/devops/ansible-playbooks/kubernetes-cluster-aws
+    output_dir: /home/devops/ansible-playbooks/kubernetes-cluster-aws
 
   tasks:
     - name: launch ec2 instance
@@ -68,4 +68,4 @@
       local_action:
         module: copy
         content: "{{ worker_node_output }}"
-        dest: "{{ worker_node_output_dir }}/worker_output" 
+        dest: "{{ output_dir }}/worker_output" 

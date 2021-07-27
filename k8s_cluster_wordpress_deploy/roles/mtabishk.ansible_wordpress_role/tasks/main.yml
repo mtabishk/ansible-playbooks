@@ -1,0 +1,34 @@
+---
+# tasks file for multi_tier
+  - name: Moving yaml files to master_node.
+    copy:
+        src: "{{ item }}"
+        dest: /root/
+    loop:
+        - mysql.yml
+        - pvc_mysql.yml
+        - pvc_wordpress.yml
+        - secret.yml
+        - wordpress.yml
+
+  - name: Creating directory over which MySQL container mounts the PersistentVolume at /var/lib/mysql.  
+    file:
+        path: /mysqldata
+        state: directory
+  
+  - name: Creating directory over which WordPress container mounts the PersistentVolume at /var/www/html.
+    file:
+        path: /wordpressdata
+        state: directory
+      
+
+  - name: Creating multi_tier application setup with yaml files.
+    shell: "kubectl apply -f /root/{{ item }}"  
+    loop:
+        - mysql.yml
+        - pvc_mysql.yml
+        - pvc_wordpress.yml
+        - wordpress.yml
+        - secret.yml
+
+
