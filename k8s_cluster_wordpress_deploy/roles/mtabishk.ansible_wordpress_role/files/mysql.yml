@@ -45,7 +45,7 @@ spec:
               name: mysqlsecret
               key: password
         - name: MYSQL_USER
-          value: udit
+          value: tabish
         - name: MYSQL_DATABASE
           value: task23db
         ports:

@@ -75,7 +75,7 @@
     state: directory
 
 - name: Copy conf file
-  command: "cp -i /etc/kubernetes/admin.conf $HOME/.kube/config"
+  command: "cp /etc/kubernetes/admin.conf $HOME/.kube/config"
   ignore_errors: yes
 
 - name: Doing some required thing

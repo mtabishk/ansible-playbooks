@@ -63,3 +63,4 @@
 - name: joining slaves with the master
   command: "{{ hostvars[item]['kubeadm_join_command']['stdout'] }}"
   with_items: "{{ groups['tag_name_master'] }}"
+  ignore_errors: yes
