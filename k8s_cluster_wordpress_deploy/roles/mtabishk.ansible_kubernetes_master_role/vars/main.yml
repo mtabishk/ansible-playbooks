@@ -1,3 +1,2 @@
 ---
-# vars file for k8s-master
-output_dir: /home/devops/ansible-playbooks/k8s_cluster_wordpress_deploy
+cidr: "10.240.0.0./16"

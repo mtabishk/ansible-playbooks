@@ -1,4 +1,0 @@
-- name: use the k8s cluster worker role
-  hosts: tag_name_worker
-  roles:
-    - mtabishk.ansible_kubernetes_worker_role 

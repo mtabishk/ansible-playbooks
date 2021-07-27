@@ -1,15 +1,11 @@
 ---
-# tasks file for k8s-master
-- name: install docker
+# tasks file for k8s_slave
+- name: Installing docker and iproute-tc
   package:
-    name: docker
+    name: 
+    - docker
+    - iproute-tc
     state: present
-
-- name: start and enable docker services
-  service:
-    name: docker
-    state: started
-    enabled: yes
 
 - name: Disable swap since kubernetes can't work with swap enabled
   command: swapoff -a
@@ -21,57 +17,49 @@
     replace: '#\1\2\3swap\4'
     backup: yes
 
-- name: Letting iptables see bridged traffic
-  shell: |
-    cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
-    br_netfilter
-    EOF
+- name: Configuring Yum repo for k8s
+  yum_repository:
+    description: Yum for k8s
+    name: kubernetes
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+    enabled: yes
+    gpgcheck: yes
+    gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+    repo_gpgcheck: yes
+    exclude:
+    - kubelet
+    - kubeadm
+    - kubectl
 
-    cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
-    net.bridge.bridge-nf-call-ip6tables = 1
-    net.bridge.bridge-nf-call-iptables = 1
-    EOF
-    
-    sudo sysctl --system
- 
-- name: Installing kubeadm, kubelet and kubectl
-  shell: |
-    cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
-    [kubernetes]
-    name=Kubernetes
-    baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
-    enabled=1
-    gpgcheck=1
-    repo_gpgcheck=1
-    gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-    exclude=kubelet kubeadm kubectl
-    EOF
+- name: Installing kubeadm
+  yum:
+    name: kubeadm
+    disable_excludes: kubernetes
 
-    sudo setenforce 0
-    sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+- name: Enabling docker and kubelet services
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop:
+    - kubelet
+    - docker
 
-    sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
-
-    sudo systemctl enable --now kubelet
-
-- name: copy daemon.json file for changing cgroup driver to systemd
-  copy: 
-    src: daemon.json
+- name: Copying content of the daemon.json file
+  copy:
     dest: /etc/docker/daemon.json
-  notify: restart docker service
+    src: daemon.json
 
 - meta: flush_handlers
 
-- name: install iproute-tc
-  package:
-    name: iproute-tc
-    state: present
+- name: Copying k8s.conf file
+  copy:
+    dest: /etc/sysctl.d/k8s.conf
+    src: k8s.conf
 
-- name: join master 
-  command: "{{ join_cmd }}"
-  register: kubeadm_join_out
-  ignore_errors: yes
+- name: Refreshing sysctl
+  shell: "sysctl --system"
 
-- name: output of kubeadm join
-  debug:
-    var: kubeadm_join_out
+- name: joining slaves with the master
+  command: "{{ hostvars[item]['kubeadm_join_command']['stdout'] }}"
+  with_items: "{{ groups['tag_name_master'] }}"
